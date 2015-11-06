@@ -2,14 +2,23 @@ usage () {
   echo "usage: assume -r role -t token -P profile -R region"
 }
 
+liststsroles () {
+ egrep -v ^# $HOME/.aws/roles
+}
+
 unassume () { 
+  issilent=$1
   unset token role profile region AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN;
-  echo "Role unassumed";
+  if [ "$issilent" != "silent" ] && [ "$issilent" != "-s" ]; then
+	  echo "Role unassumed"
+  fi
   return 0
 }
 
 assume () 
 { 
+    #Before doing anything else we need to "unassume" any existing roles
+    unassume silent
     ROLEREF=${ROLEREF:-"$HOME/.aws/roles"};
     local OPTIND P R r t opt;
     while getopts ":r:t:R:P" opt; do
@@ -23,7 +32,6 @@ assume ()
         esac;
     done;
     shift `expr $OPTIND - 1`;
-    #echo "DEBUG: roleref: $ROLEREF role: $role token: $token";
     [ "$role" = "" ] && echo "You must supply a valid role" && usage && return 1;
     if [ ! `echo $role | grep ^arn` ]; then
         if [ ! -s $ROLEREF ]; then
@@ -44,6 +52,7 @@ assume ()
             fi;
         done;
     fi;
+    echo "DEBUG: roleref: $ROLEREF role: $role token: $token profile: $profile region: $region";
     duration=900;
     if echo "$4" | grep "^[0-9]\{3,4\}$" > /dev/null; then
         duration=$4;
