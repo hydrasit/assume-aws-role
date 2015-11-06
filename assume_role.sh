@@ -52,7 +52,7 @@ assume ()
             fi;
         done;
     fi;
-    echo "DEBUG: roleref: $ROLEREF role: $role token: $token profile: $profile region: $region";
+    #echo "DEBUG: roleref: $ROLEREF role: $role token: $token profile: $profile region: $region";
     duration=900;
     if echo "$4" | grep "^[0-9]\{3,4\}$" > /dev/null; then
         duration=$4;
